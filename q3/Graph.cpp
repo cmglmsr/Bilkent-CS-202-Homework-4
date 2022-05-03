@@ -17,9 +17,10 @@ using namespace std;
 int MapGraph::findTotalCost() {
     int sum = 0;
     for(int i = 0; i < size; i++) {
-        for( int j = i; j < size; j++) {
-            if( adjMatrix[i][j] >= 0)
-                sum += adjMatrix[i][j];
+        for(int j = i; j < size; j++) {
+            if( adjList[i].contains(j)) {
+                sum += adjList[i].getDuration( j);
+            }
         }
     }
     return sum;
@@ -27,44 +28,31 @@ int MapGraph::findTotalCost() {
 
 // Default constructor
 MapGraph::MapGraph() {
-    adjMatrix=nullptr;
+    adjList = nullptr;
 }
 
 // Destructor
 MapGraph::~MapGraph() {
-    for( int i = 0; i < size; i++)
-        delete [] adjMatrix[i];
-    delete [] adjMatrix;
+    delete [] adjList;
 }
 
-// Constructor that initializes the square adjacency matrix
+// Constructor that initializes the adjacency list
 MapGraph::MapGraph( const int thisSize) { 
     size = thisSize;
-    adjMatrix= new int*[size];
+    adjList = new List[size];
     for( int i = 0; i < size; ++i) {
-        adjMatrix[i] = new int[size];
-        for( int j = 0; j < size; ++j) {
-            adjMatrix[i][j] = -1;        // changed this!!!!!!!!!!!!!!!!!!!!!!
-            if( i == j)
-                adjMatrix[i][j] = 0; 
-        }    
+        adjList[i] = *(new List());
     }
 }
 
 // countFlights method counts the number of flights from that airport
 int MapGraph::countFlights( int airport) const {
-    int c = 0;
-    for( int i = 0; i < size; i++) {
-        if( adjMatrix[airport][i] > 0) {
-            c++;
-        }
-    }
-    return c;
+    return adjList[airport].getLength();
 }
 
 // insert method inserts a flight to the map between the two specified airports
 bool MapGraph::insert( int airport1, int airport2, int duration) {
-    if( adjMatrix == nullptr) {
+    if( adjList == nullptr) {
         cout << "Initialize a map first!" << endl;
         return false;
     }
@@ -72,13 +60,13 @@ bool MapGraph::insert( int airport1, int airport2, int duration) {
         cout << "Illegal argument for airport index!" << endl;
         return false;
     }
-    else if( adjMatrix[airport1][airport2] > 0 || adjMatrix[airport2][airport1] > 0) {
+    else if( adjList[airport1].contains(airport2) || adjList[airport2].contains(airport1)) {
         cout << "Flight already exists." << endl;
         return true;
     }
     else {
-        adjMatrix[airport1][airport2] = duration;
-        adjMatrix[airport2][airport1] = duration;
+        adjList[airport1].insert( 1, airport2, duration);
+        adjList[airport2].insert( 1, airport1, duration);
         cout << "Inserted a new flight between " << airport1 << " and " << airport2 << "." << endl;
         cout << "   The number of flights from " << airport1 << " is " << countFlights( airport1) << "." << endl;
         return true;
@@ -87,7 +75,7 @@ bool MapGraph::insert( int airport1, int airport2, int duration) {
 
 // list method lists the flights from a given airport
 bool MapGraph::list( int airport) {
-    if( adjMatrix == nullptr) {
+    if( adjList == nullptr) {
         cout << "Initialize a map first!" << endl;
         return false;
     }
@@ -98,8 +86,8 @@ bool MapGraph::list( int airport) {
 
     cout << "List of flights from " << airport << ":" << endl;
     for( int i = 0; i < size; i++) {
-        if( adjMatrix[airport][i] > 0) {
-            cout << "   " << airport << " to " << i << " with a duration of " << adjMatrix[airport][i] << "." << endl;
+        if( adjList[airport].contains(i)) {
+            cout << "   " << airport << " to " << i << " with a duration of " << adjList[airport].getDuration(i) << "." << endl;
         }
     }
     cout << "   The number of flights is " << countFlights(airport) << "." << endl;
@@ -108,24 +96,20 @@ bool MapGraph::list( int airport) {
 
 // shortestPath method finds the minimum duration path from one airport to another
 void MapGraph::shortestPath( int airport1, int airport2) {
-    /*
     int* weight = new int[size];
-    int* vertexSet = new int[size];
     int* indirectFlightPath = new int[size];
+    set vertexSet;
+    
     indirectFlightPath[0] = airport1;
-
     int indirectFlightIndex = 1;
-    int directFlightDuration = adjMatrix[airport1][airport2];  // might not exist! (-1)
+    int directFlightDuration = adjList[airport1].getDuration(airport2);  // might not exist! (-1)
     int indirectFlightDuration = 0;
 
-    for(int i = 0; i < size; i++)
-        vertexSet[i] = -1;
-    
-    vertexSet[0] = airport1;
+    vertexSet.add(airport1);
 
 	// Duration of direct flights to respective airports
 	for (int v = 0; v < size; v++)
-	    weight[v] = adjMatrix[airport1][v];
+	    weight[v] = adjList[airport1].getDuration(v);  // -1 if not exists
 
 	// Steps 2 through n
 	while( true) {
@@ -161,7 +145,7 @@ void MapGraph::shortestPath( int airport1, int airport2) {
 
     delete [] indirectFlightPath;
     delete [] weight;
-    delete [] vertexSet;*/
+    delete [] vertexSet;
 }
 
 
@@ -169,15 +153,10 @@ void MapGraph::shortestPath( int airport1, int airport2) {
 void MapGraph::minimizeCosts() {
     cout << "Total cost of operations before minimization: " << findTotalCost() << endl;
     
-    // initialize the adjacency matrix of new graph
-    int** newMatrix = new int*[size];
+    // initialize the adjacency list of new graph
+    List* newList = new List[size];
     for( int i = 0; i < size; ++i) {
-        newMatrix[i] = new int[size];
-        for( int j = 0; j < size; ++j) {
-            newMatrix[i][j] = -1;
-            if( i == j)
-                newMatrix[i][j] = 0; 
-        }    
+        newList[i] = *(new List());
     }
 
     int currentVertex = 0;
@@ -193,23 +172,20 @@ void MapGraph::minimizeCosts() {
         for( int i = 0; i < visitedSet.size; i++) {
             int v = visitedSet.elements[i];
             for( int j = 0; j < size; j++) {
-                    if( (adjMatrix[v][j] > 0) && (adjMatrix[v][j] < minCost) && !visitedSet.contains(j)) {
+                    if( (adjList[v].contains(j)) && (adjList[v].getDuration(j) < minCost) && !visitedSet.contains(j)) {
                         currentVertex = v;
                         u = j;
-                        minCost = adjMatrix[v][u];
+                        minCost = adjList[v].getDuration(j);
                 }
             }
         }
         visitedSet.add(u);
-        newCost += adjMatrix[currentVertex][u];
-        newMatrix[currentVertex][u] = adjMatrix[currentVertex][u];
-        newMatrix[u][currentVertex] = adjMatrix[currentVertex][u];
+        newCost += adjList[currentVertex].getDuration(u);
+        newList[currentVertex].insert(1, u, adjList[currentVertex].getDuration(u));
+        newList[u].insert(1, currentVertex, adjList[currentVertex].getDuration(u));
     }
+    delete [] adjList;
 
-    for( int i = 0; i < size; i++)
-        delete [] adjMatrix[i];
-    delete [] adjMatrix;
-
-    adjMatrix = newMatrix;
+    adjList = newList;
     cout << "Total cost of operations after minimization: " << findTotalCost() << endl;
 }
