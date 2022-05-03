@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include "Graph.h"
 using namespace std;
 
 /*
@@ -25,5 +26,9 @@ int main( int arg, char* args[]) {
 
     file >> numOfAirports;
     file >> numOfOperations;
+
+    MapGraph map(numOfAirports);
+
+    map.insert( 3, 5, 5);
 
 }

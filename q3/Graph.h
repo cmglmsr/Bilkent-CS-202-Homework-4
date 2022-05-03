@@ -11,9 +11,13 @@
 
 class MapGraph {
     public:
+        int size;
         int** adjMatrix;
         MapGraph();
-        void insert( int airport1, int airport2) const;
+        ~MapGraph();
+        MapGraph( const int size);
+        int countFlights( int airport) const;
+        void insert( int airport1, int airport2, int duration);
         void list();
         void shortestPath();
         void minimizeCosts();
