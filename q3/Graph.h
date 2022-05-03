@@ -1,4 +1,5 @@
 
+
 /*
 * Title: Graph Data Structure for the Map
 * Author: Mustafa Cem Gülümser
@@ -11,14 +12,15 @@
 
 class MapGraph {
     public:
-        int size;
+        int size;          // number of airports
         int** adjMatrix;
         MapGraph();
         ~MapGraph();
         MapGraph( const int size);
         int countFlights( int airport) const;
-        void insert( int airport1, int airport2, int duration);
-        void list();
-        void shortestPath();
+        bool insert( int airport1, int airport2, int duration);
+        bool list( int airport);
+        void shortestPath( int airport1, int airport2);
         void minimizeCosts();
+        int findTotalCost();
 };

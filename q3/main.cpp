@@ -29,6 +29,29 @@ int main( int arg, char* args[]) {
 
     MapGraph map(numOfAirports);
 
-    map.insert( 3, 5, 5);
+    for( int operation = 1; operation <= numOfOperations; operation++) {
+        string opCode = "";
+        file >> opCode;
+        int arg1 = 0; int arg2 = 0; int arg3 = 0;
 
+        if( opCode == "I") {
+            file >> arg1; file >> arg2; file >> arg3;
+            if ( !map.insert( arg1, arg2, arg3))
+                return 1;
+        }
+        else if( opCode == "L") {
+            file >> arg1;
+            if ( !map.list( arg1))
+                return 1;
+        }
+        else if( opCode == "S") {
+
+        }
+        else if( opCode == "M") {
+            map.minimizeCosts();
+        }
+        else {
+            cout << "Illegal opCode!" << endl;
+        }
+    }
 }
