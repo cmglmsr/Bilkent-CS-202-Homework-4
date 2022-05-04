@@ -96,58 +96,59 @@ bool MapGraph::list( int airport) {
 
 // shortestPath method finds the minimum duration path from one airport to another
 void MapGraph::shortestPath( int airport1, int airport2) {
-    int* weight = new int[size];
-    int* indirectFlightPath = new int[size];
-    set vertexSet;
     
-    indirectFlightPath[0] = airport1;
-    int indirectFlightIndex = 1;
-    int directFlightDuration = adjList[airport1].getDuration(airport2);  // might not exist! (-1)
-    int indirectFlightDuration = 0;
-
+    set vertexSet;
     vertexSet.add(airport1);
 
-	// Duration of direct flights to respective airports
+    // Duration of direct flights to respective airports
+    int* weight = new int[size];
 	for (int v = 0; v < size; v++)
 	    weight[v] = adjList[airport1].getDuration(v);  // -1 if not exists
-
+    weight[airport1] = 0;
+    
+    bool found = false;
 	// Steps 2 through n
-	while( true) {
+	for(int k = 0; k < size-1; k++) {
 
         // Find the smallest weight[v] such that v is not in vertexSet
         int minWeight = 99999;
-        int minWeightVertex = -1;
+        int minWeightVertex = 0;
         for( int i = 0; i < size; i++) {
-            if( i == airport1 || weight[i] == -1 || i == airport2)
-                continue;
-            if( !checkIfExists( vertexSet, size, i) && weight[i] < minWeight) {
-                minWeightVertex = i;
-                minWeight = weight[i];
+            if( i != airport1 || weight[i] != -1 ) {
+                if( !vertexSet.contains(i) && weight[i] < minWeight) {
+                    minWeightVertex = i;
+                    minWeight = weight[i];
+                }
             }
         }
 
-        indirectFlightPath[ indirectFlightIndex] = minWeightVertex;
-        indirectFlightDuration += minWeight;
-
         // Add v to vertexSet
-        addIfNotExists( vertexSet, size, minWeightVertex);
+        vertexSet.add( minWeightVertex);
 
         // For all vertices u adjacent to v but not in vertexSet
 	    for (int u = 0; u < size; u++) {
-           if( adjMatrix[minWeightVertex][u] > 0 && !checkIfExists(vertexSet, size, u)) {
-                if (weight[u] > weight[minWeightVertex] + adjMatrix[minWeightVertex][u])
-	                weight[u] = weight[minWeightVertex]+ adjMatrix[minWeightVertex][u];
-                    indirectFlightPath[indirectFlightIndex] = u;
-                    indirectFlightIndex++;
-           }
+           if( adjList[minWeightVertex].contains(u) & !vertexSet.contains(u)) {
+                if (weight[u] > weight[minWeightVertex] + adjList[minWeightVertex].getDuration(u)) {
+                    weight[u] = weight[minWeightVertex]+ adjList[minWeightVertex].getDuration(u);
+                }   
+            }
         }
 	}
+    /*
+    if( !found) {
+        cout << "No paths from " << airport1 << " to " << airport2 << "." << endl;
+    }
+    else if( directFlightDuration <= indirectFlightDuration) {
+        cout << "The shortest path from " << airport1 << " to " << airport2 << ": " << endl;
+        cout << "   " << airport1 << " to " << airport2 << " with a duration " << directFlightDuration << endl;
+    }
+    else if( directFlightDuration > indirectFlightDuration) {
+        cout << "The shortest path from " << airport1 << " to " << airport2 << ": " << endl;
+        cout << "    Total flight duration of path: " << indirectFlightDuration << endl;
+    }*/
 
-    delete [] indirectFlightPath;
     delete [] weight;
-    delete [] vertexSet;
 }
-
 
 // minimizeCosts finds the minimum spanning tree of the graph using Prim's Algorithm
 void MapGraph::minimizeCosts() {
