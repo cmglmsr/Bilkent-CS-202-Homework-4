@@ -2,6 +2,7 @@
 #include "Set.h"
 #include <iostream>
 using namespace std;
+const int MAX_INT = 9999;
 
 /*
 * Title: Graph Data Structure for the Map
@@ -13,6 +14,21 @@ using namespace std;
 */
 
 // Helper methods
+string convert( int i) {               // will not work with more than single digits ! change this!!!!!!!!!!
+    switch( i) {
+        case 0: return "0";
+        case 1: return "1";
+        case 2: return "2";
+        case 3: return "3";
+        case 4: return "4";
+        case 5: return "5";
+        case 6: return "6";
+        case 7: return "7";
+        case 8: return "8";
+        case 9: return "9";
+    }
+    return "";
+}
 
 int MapGraph::findTotalCost() {
     int sum = 0;
@@ -97,13 +113,19 @@ bool MapGraph::list( int airport) {
 // shortestPath method finds the minimum duration path from one airport to another
 void MapGraph::shortestPath( int airport1, int airport2) {
     
+    int s = size;
     set vertexSet;
     vertexSet.add(airport1);
 
+    int index = 0;
+    string* strPath = new string[size*size];
     // Duration of direct flights to respective airports
     int* weight = new int[size];
-	for (int v = 0; v < size; v++)
-	    weight[v] = adjList[airport1].getDuration(v);  // -1 if not exists
+	for (int v = 0; v < size; v++) {
+        weight[v] = adjList[airport1].getDuration(v);  // -1 if not exists
+        strPath[v] = "";
+    }
+	    
     weight[airport1] = 0;
     
     bool found = false;
@@ -114,13 +136,17 @@ void MapGraph::shortestPath( int airport1, int airport2) {
         int minWeight = 99999;
         int minWeightVertex = 0;
         for( int i = 0; i < size; i++) {
-            if( i != airport1 || weight[i] != -1 ) {
+            if( weight[i] != -1 ) {
                 if( !vertexSet.contains(i) && weight[i] < minWeight) {
                     minWeightVertex = i;
                     minWeight = weight[i];
                 }
             }
         }
+
+        if( adjList[airport1].getDuration(minWeightVertex) < MAX_INT)
+            strPath[minWeightVertex] = "  " + convert(airport1) + " to " + convert(minWeightVertex) + " with a duration " +
+                        convert( adjList[airport1].getDuration(minWeightVertex)) + "\n";
 
         // Add v to vertexSet
         vertexSet.add( minWeightVertex);
@@ -129,24 +155,24 @@ void MapGraph::shortestPath( int airport1, int airport2) {
 	    for (int u = 0; u < size; u++) {
            if( adjList[minWeightVertex].contains(u) & !vertexSet.contains(u)) {
                 if (weight[u] > weight[minWeightVertex] + adjList[minWeightVertex].getDuration(u)) {
+                    strPath[u] = strPath[minWeightVertex] + "  " + convert(minWeightVertex) + " to " + convert(u) + " with a duration " +
+                        convert( adjList[minWeightVertex].getDuration(u)) + "\n";
                     weight[u] = weight[minWeightVertex]+ adjList[minWeightVertex].getDuration(u);
                 }   
             }
         }
 	}
-    /*
-    if( !found) {
-        cout << "No paths from " << airport1 << " to " << airport2 << "." << endl;
-    }
-    else if( directFlightDuration <= indirectFlightDuration) {
-        cout << "The shortest path from " << airport1 << " to " << airport2 << ": " << endl;
-        cout << "   " << airport1 << " to " << airport2 << " with a duration " << directFlightDuration << endl;
-    }
-    else if( directFlightDuration > indirectFlightDuration) {
-        cout << "The shortest path from " << airport1 << " to " << airport2 << ": " << endl;
-        cout << "    Total flight duration of path: " << indirectFlightDuration << endl;
-    }*/
 
+    if( strPath[airport2] == "") {
+         cout << "No paths from " << airport1 << " to " << airport2 << "." << endl;
+    }
+    else {
+        cout << "The shortest path from " << airport1 << " to " << airport2 << ": " << endl;
+        cout << strPath[airport2];
+        cout << "  Total flight duration of path: " << weight[airport2] << endl;
+    }
+
+    delete [] strPath;
     delete [] weight;
 }
 

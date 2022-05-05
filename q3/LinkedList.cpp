@@ -103,5 +103,5 @@ int List::getDuration( int key) {
         if( ptr->vertex == key)
             return ptr->weight;
     }
-    return -1;
+    return 9999;
 }
