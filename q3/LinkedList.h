@@ -1,11 +1,10 @@
-
 /*
 * Title: Linked List header file
 * Author: Mustafa Cem Gülümser
 * ID: 22003430
 * Section: 2
 * Assignment: 4
-* Description: Header file for Linked List
+* Description: Header file for Linked List, taken from the textbook
 */
 
 typedef int ListItemType;

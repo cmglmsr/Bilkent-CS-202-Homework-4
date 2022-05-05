@@ -1,6 +1,8 @@
 #include "Graph.h"
 #include "Set.h"
 #include <iostream>
+#include <sstream>
+#include <string>
 using namespace std;
 const int MAX_INT = 9999;
 
@@ -15,19 +17,11 @@ const int MAX_INT = 9999;
 
 // Helper methods
 string convert( int i) {               // will not work with more than single digits ! change this!!!!!!!!!!
-    switch( i) {
-        case 0: return "0";
-        case 1: return "1";
-        case 2: return "2";
-        case 3: return "3";
-        case 4: return "4";
-        case 5: return "5";
-        case 6: return "6";
-        case 7: return "7";
-        case 8: return "8";
-        case 9: return "9";
-    }
-    return "";
+    stringstream toString;
+    toString << i;  
+    string returnString = "";  
+    toString >> returnString;  
+    return returnString;
 }
 
 int MapGraph::findTotalCost() {
@@ -41,10 +35,11 @@ int MapGraph::findTotalCost() {
     }
     return sum;
 }
+// End helper methods
 
 // Default constructor
 MapGraph::MapGraph() {
-    adjList = nullptr;
+    adjList = NULL;
 }
 
 // Destructor
@@ -68,7 +63,7 @@ int MapGraph::countFlights( int airport) const {
 
 // insert method inserts a flight to the map between the two specified airports
 bool MapGraph::insert( int airport1, int airport2, int duration) {
-    if( adjList == nullptr) {
+    if( adjList == NULL) {
         cout << "Initialize a map first!" << endl;
         return false;
     }
@@ -91,7 +86,7 @@ bool MapGraph::insert( int airport1, int airport2, int duration) {
 
 // list method lists the flights from a given airport
 bool MapGraph::list( int airport) {
-    if( adjList == nullptr) {
+    if( adjList == NULL) {
         cout << "Initialize a map first!" << endl;
         return false;
     }
@@ -178,7 +173,13 @@ void MapGraph::shortestPath( int airport1, int airport2) {
 
 // minimizeCosts finds the minimum spanning tree of the graph using Prim's Algorithm
 void MapGraph::minimizeCosts() {
-    cout << "Total cost of operations before minimization: " << findTotalCost() << endl;
+    int totalCost = 0;
+    totalCost = findTotalCost();
+    cout << "Total cost of operations before minimization: " << totalCost << endl;
+    if( totalCost == 0) {
+        cout << "Total cost of operations after minimization: " << totalCost << endl;
+        return;
+    }
     
     // initialize the adjacency list of new graph
     List* newList = new List[size];
