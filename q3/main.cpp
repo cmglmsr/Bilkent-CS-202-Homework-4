@@ -45,7 +45,8 @@ int main( int arg, char* args[]) {
                 return 1;
         }
         else if( opCode == "S") {
-
+            file >> arg1; file >> arg2;
+            map.shortestPath(arg1, arg2);
         }
         else if( opCode == "M") {
             map.minimizeCosts();

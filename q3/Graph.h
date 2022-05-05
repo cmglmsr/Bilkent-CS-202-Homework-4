@@ -1,4 +1,4 @@
-
+#include "LinkedList.h"
 
 /*
 * Title: Graph Data Structure for the Map
@@ -13,7 +13,7 @@
 class MapGraph {
     public:
         int size;          // number of airports
-        int** adjMatrix;
+        List* adjList;
         MapGraph();
         ~MapGraph();
         MapGraph( const int size);

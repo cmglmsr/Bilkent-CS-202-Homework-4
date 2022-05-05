@@ -12,7 +12,7 @@
 
 set::set() {
     size = 0;
-    elements = nullptr;
+    elements = NULL;
 }
 
 set::set( int s) {
